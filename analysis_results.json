@@ -1,0 +1,464 @@
+{
+  "status": "success",
+  "timestamp": "2025-07-20T19:08:51.742571Z",
+  "contract": "new.sol",
+  "domain": "dao",
+  "domains": [
+    "dao",
+    "defi"
+  ],
+  "protocol": null,
+  "findings": [
+    {
+      "finding_id": "f5218f0007cc",
+      "title": "Missing Access Control on Withdraw Function",
+      "description": "The withdraw function appears to lack access control modifiers. This could allow unauthorized users to execute critical operations.",
+      "severity": "critical",
+      "category": "access_control",
+      "confidence": "medium",
+      "status": "open",
+      "affected_contracts": [
+        "DeFiDAOExample"
+      ],
+      "affected_functions": [
+        "withdraw"
+      ],
+      "code_snippet": "\n    event Deposited(address indexed user, uint256 amount);\n    event Withdrawn(address indexed user, uint256 amount);\n    event InterestRateChanged(uint256 newRate);\n",
+      "line_numbers": [
+        17
+      ],
+      "impact": "Unauthorized users could drain funds, mint tokens, or manipulate contract state",
+      "likelihood": "",
+      "recommendation": "Add appropriate access control modifiers (onlyOwner, onlyRole, etc.) to restrict function access",
+      "fix_suggestion": "",
+      "references": [],
+      "metadata": {
+        "cwe_id": null,
+        "swc_id": null,
+        "owasp_category": null,
+        "detection_method": "static_analysis",
+        "detector_name": null,
+        "detector_version": null,
+        "detected_at": "2025-07-21T00:38:49.313095",
+        "last_updated": "2025-07-21T00:38:49.313095",
+        "reviewed_by": null,
+        "review_notes": null,
+        "fix_effort": null,
+        "fix_complexity": null
+      },
+      "risk_score": 0.6,
+      "location": {
+        "file_path": null,
+        "contract_name": "DeFiDAOExample",
+        "function_name": null,
+        "line_number": 17,
+        "column_number": null,
+        "start_line": null,
+        "end_line": null,
+        "code_snippet": "\n    event Deposited(address indexed user, uint256 amount);\n    event Withdrawn(address indexed user, uint256 amount);\n    event InterestRateChanged(uint256 newRate);\n"
+      }
+    },
+    {
+      "finding_id": "b882e92b72c5",
+      "title": "Centralization Risk - Single Point of Control",
+      "description": "Contract has centralized control through owner/governance roles. This creates trust assumptions and potential for rug pulls.",
+      "severity": "high",
+      "category": "access_control",
+      "confidence": "medium",
+      "status": "open",
+      "affected_contracts": [
+        "DeFiDAOExample"
+      ],
+      "affected_functions": [
+        "Multiple functions with restricted access"
+      ],
+      "code_snippet": "    event InterestRateChanged(uint256 newRate);\n\n    modifier onlyGovernance() {\n        require(msg.sender == governance, \"Only governance\");\n        _;",
+      "line_numbers": [
+        20
+      ],
+      "impact": "Single entity can control critical contract functions, potentially leading to fund theft or malicious updates",
+      "likelihood": "",
+      "recommendation": "Implement multi-signature wallets, time-locks, or decentralized governance to reduce centralization risks",
+      "fix_suggestion": "",
+      "references": [],
+      "metadata": {
+        "cwe_id": null,
+        "swc_id": null,
+        "owasp_category": null,
+        "detection_method": "static_analysis",
+        "detector_name": null,
+        "detector_version": null,
+        "detected_at": "2025-07-21T00:38:49.313095",
+        "last_updated": "2025-07-21T00:38:49.313095",
+        "reviewed_by": null,
+        "review_notes": null,
+        "fix_effort": null,
+        "fix_complexity": null
+      },
+      "risk_score": 0.48,
+      "location": {
+        "file_path": null,
+        "contract_name": "DeFiDAOExample",
+        "function_name": null,
+        "line_number": 20,
+        "column_number": null,
+        "start_line": null,
+        "end_line": null,
+        "code_snippet": "    event InterestRateChanged(uint256 newRate);\n\n    modifier onlyGovernance() {\n        require(msg.sender == governance, \"Only governance\");\n        _;"
+      }
+    },
+    {
+      "finding_id": "c4b382fd7182",
+      "title": "Critical Reentrancy Vulnerability Detected",
+      "description": "External calls are made before state changes. This violates the checks-effects-interactions pattern and enables reentrancy attacks.",
+      "severity": "critical",
+      "category": "reentrancy",
+      "confidence": "medium",
+      "status": "open",
+      "affected_contracts": [
+        "DeFiDAOExample"
+      ],
+      "affected_functions": [],
+      "code_snippet": "        balances[msg.sender] -= amount;\n        totalDeposits -= amount;\n        (bool sent, ) = msg.sender.call{value: amount}(\"\");\n        require(sent, \"Withdraw failed\");\n        emit Withdrawn(msg.sender, amount);",
+      "line_numbers": [
+        41
+      ],
+      "impact": "Attackers can recursively call the function to drain all funds from the contract",
+      "likelihood": "",
+      "recommendation": "Follow checks-effects-interactions pattern: 1) Check conditions, 2) Update state, 3) Make external calls. Use ReentrancyGuard.",
+      "fix_suggestion": "",
+      "references": [],
+      "metadata": {
+        "cwe_id": null,
+        "swc_id": null,
+        "owasp_category": null,
+        "detection_method": "static_analysis",
+        "detector_name": null,
+        "detector_version": null,
+        "detected_at": "2025-07-21T00:38:49.313095",
+        "last_updated": "2025-07-21T00:38:49.313095",
+        "reviewed_by": null,
+        "review_notes": null,
+        "fix_effort": null,
+        "fix_complexity": null
+      },
+      "risk_score": 0.6,
+      "location": {
+        "file_path": null,
+        "contract_name": "DeFiDAOExample",
+        "function_name": null,
+        "line_number": 41,
+        "column_number": null,
+        "start_line": null,
+        "end_line": null,
+        "code_snippet": "        balances[msg.sender] -= amount;\n        totalDeposits -= amount;\n        (bool sent, ) = msg.sender.call{value: amount}(\"\");\n        require(sent, \"Withdraw failed\");\n        emit Withdrawn(msg.sender, amount);"
+      }
+    },
+    {
+      "finding_id": "b924ce216665",
+      "title": "Integer Overflow/Underflow Risk",
+      "description": "Arithmetic operations without SafeMath library or overflow checks detected. This can lead to integer overflow/underflow vulnerabilities.",
+      "severity": "high",
+      "category": "arithmetic",
+      "confidence": "medium",
+      "status": "open",
+      "affected_contracts": [
+        "DeFiDAOExample"
+      ],
+      "affected_functions": [],
+      "code_snippet": "    function deposit() external payable {\n        require(msg.value > 0, \"No Ether sent\");\n        balances[msg.sender] += msg.value;\n        totalDeposits += msg.value;\n        emit Deposited(msg.sender, msg.value);",
+      "line_numbers": [
+        32
+      ],
+      "impact": "Arithmetic overflow could allow attackers to manipulate balances, bypass checks, or mint unlimited tokens",
+      "likelihood": "",
+      "recommendation": "Use SafeMath library or Solidity 0.8+ with built-in overflow protection for all arithmetic operations",
+      "fix_suggestion": "",
+      "references": [],
+      "metadata": {
+        "cwe_id": null,
+        "swc_id": null,
+        "owasp_category": null,
+        "detection_method": "static_analysis",
+        "detector_name": null,
+        "detector_version": null,
+        "detected_at": "2025-07-21T00:38:49.313095",
+        "last_updated": "2025-07-21T00:38:49.313095",
+        "reviewed_by": null,
+        "review_notes": null,
+        "fix_effort": null,
+        "fix_complexity": null
+      },
+      "risk_score": 0.48,
+      "location": {
+        "file_path": null,
+        "contract_name": "DeFiDAOExample",
+        "function_name": null,
+        "line_number": 32,
+        "column_number": null,
+        "start_line": null,
+        "end_line": null,
+        "code_snippet": "    function deposit() external payable {\n        require(msg.value > 0, \"No Ether sent\");\n        balances[msg.sender] += msg.value;\n        totalDeposits += msg.value;\n        emit Deposited(msg.sender, msg.value);"
+      }
+    },
+    {
+      "finding_id": "6971e435cc36",
+      "title": "Double Voting Vulnerability",
+      "description": "Voting mechanism may allow users to vote multiple times on the same proposal.",
+      "severity": "critical",
+      "category": "dao_specific",
+      "confidence": "medium",
+      "status": "open",
+      "affected_contracts": [
+        "DeFiDAOExample"
+      ],
+      "affected_functions": [],
+      "code_snippet": "        address proposer;\n        uint256 newRate;\n        uint256 votesFor;\n        uint256 votesAgainst;\n        uint256 deadline;",
+      "line_numbers": [
+        53
+      ],
+      "impact": "Malicious actors could manipulate governance decisions by voting multiple times",
+      "likelihood": "",
+      "recommendation": "Track which addresses have voted using a mapping(uint => mapping(address => bool)) hasVoted",
+      "fix_suggestion": "",
+      "references": [],
+      "metadata": {
+        "cwe_id": null,
+        "swc_id": null,
+        "owasp_category": null,
+        "detection_method": "static_analysis",
+        "detector_name": null,
+        "detector_version": null,
+        "detected_at": "2025-07-21T00:38:49.313095",
+        "last_updated": "2025-07-21T00:38:49.313095",
+        "reviewed_by": null,
+        "review_notes": null,
+        "fix_effort": null,
+        "fix_complexity": null
+      },
+      "risk_score": 0.6,
+      "location": {
+        "file_path": null,
+        "contract_name": "DeFiDAOExample",
+        "function_name": null,
+        "line_number": 53,
+        "column_number": null,
+        "start_line": null,
+        "end_line": null,
+        "code_snippet": "        address proposer;\n        uint256 newRate;\n        uint256 votesFor;\n        uint256 votesAgainst;\n        uint256 deadline;"
+      }
+    },
+    {
+      "finding_id": "703fb6ede3dd",
+      "title": "Proposal Spam Attack Vector",
+      "description": "No cost or stake requirement for creating proposals. This could lead to proposal spam attacks.",
+      "severity": "medium",
+      "category": "denial_of_service",
+      "confidence": "medium",
+      "status": "open",
+      "affected_contracts": [
+        "DeFiDAOExample"
+      ],
+      "affected_functions": [],
+      "code_snippet": "\n    struct Proposal {\n        address proposer;\n        uint256 newRate;\n        uint256 votesFor;",
+      "line_numbers": [
+        51
+      ],
+      "impact": "Governance could be disrupted by spam proposals, making it difficult to find legitimate proposals",
+      "likelihood": "",
+      "recommendation": "Require a minimum token stake or fee for proposal creation to prevent spam",
+      "fix_suggestion": "",
+      "references": [],
+      "metadata": {
+        "cwe_id": null,
+        "swc_id": null,
+        "owasp_category": null,
+        "detection_method": "static_analysis",
+        "detector_name": null,
+        "detector_version": null,
+        "detected_at": "2025-07-21T00:38:49.313095",
+        "last_updated": "2025-07-21T00:38:49.313095",
+        "reviewed_by": null,
+        "review_notes": null,
+        "fix_effort": null,
+        "fix_complexity": null
+      },
+      "risk_score": 0.36,
+      "location": {
+        "file_path": null,
+        "contract_name": "DeFiDAOExample",
+        "function_name": null,
+        "line_number": 51,
+        "column_number": null,
+        "start_line": null,
+        "end_line": null,
+        "code_snippet": "\n    struct Proposal {\n        address proposer;\n        uint256 newRate;\n        uint256 votesFor;"
+      }
+    },
+    {
+      "finding_id": "d2ec2d783378",
+      "title": "Timestamp Dependence in Critical Logic",
+      "description": "Contract relies on block.timestamp for time-sensitive operations. Miners can manipulate timestamps within limits.",
+      "severity": "low",
+      "category": "timestamp_dependence",
+      "confidence": "medium",
+      "status": "open",
+      "affected_contracts": [
+        "DeFiDAOExample"
+      ],
+      "affected_functions": [],
+      "code_snippet": "STAKING_DURATION",
+      "line_numbers": [
+        1
+      ],
+      "impact": "Slight timing manipulation possible, affecting reward calculations",
+      "likelihood": "",
+      "recommendation": "Consider using block numbers instead of timestamps for critical time-based logic, or implement tolerance ranges",
+      "fix_suggestion": "",
+      "references": [],
+      "metadata": {
+        "cwe_id": null,
+        "swc_id": null,
+        "owasp_category": null,
+        "detection_method": "static_analysis",
+        "detector_name": null,
+        "detector_version": null,
+        "detected_at": "2025-07-21T00:38:49.313095",
+        "last_updated": "2025-07-21T00:38:49.313095",
+        "reviewed_by": null,
+        "review_notes": null,
+        "fix_effort": null,
+        "fix_complexity": null
+      },
+      "risk_score": 0.24,
+      "location": {
+        "file_path": null,
+        "contract_name": "DeFiDAOExample",
+        "function_name": null,
+        "line_number": 1,
+        "column_number": null,
+        "start_line": null,
+        "end_line": null,
+        "code_snippet": "STAKING_DURATION"
+      }
+    },
+    {
+      "finding_id": "dfc3c61f4a47",
+      "title": "DAO-DeFi Cross-Domain Risk: Governance Treasury Drain",
+      "description": "DAO voting mechanisms control DeFi treasury functions. Malicious proposals could drain protocol funds if governance thresholds are too low.",
+      "severity": "critical",
+      "category": "authorization",
+      "confidence": "medium",
+      "status": "open",
+      "affected_contracts": [
+        "DeFiDAOExample"
+      ],
+      "affected_functions": [],
+      "code_snippet": "\n    event Deposited(address indexed user, uint256 amount);\n    event Withdrawn(address indexed user, uint256 amount);\n    event InterestRateChanged(uint256 newRate);\n",
+      "line_numbers": [
+        17
+      ],
+      "impact": "Attackers could acquire voting power and drain protocol treasury through malicious governance proposals",
+      "likelihood": "",
+      "recommendation": "Implement proposal timeouts, higher quorum requirements for treasury operations, and emergency veto mechanisms",
+      "fix_suggestion": "",
+      "references": [],
+      "metadata": {
+        "cwe_id": null,
+        "swc_id": null,
+        "owasp_category": null,
+        "detection_method": "static_analysis",
+        "detector_name": null,
+        "detector_version": null,
+        "detected_at": "2025-07-21T00:38:49.313095",
+        "last_updated": "2025-07-21T00:38:49.313095",
+        "reviewed_by": null,
+        "review_notes": null,
+        "fix_effort": null,
+        "fix_complexity": null
+      },
+      "risk_score": 0.6,
+      "location": {
+        "file_path": null,
+        "contract_name": "DeFiDAOExample",
+        "function_name": null,
+        "line_number": 17,
+        "column_number": null,
+        "start_line": null,
+        "end_line": null,
+        "code_snippet": "\n    event Deposited(address indexed user, uint256 amount);\n    event Withdrawn(address indexed user, uint256 amount);\n    event InterestRateChanged(uint256 newRate);\n"
+      }
+    },
+    {
+      "finding_id": "87fb142cb76c",
+      "title": "Multi-Domain Access Control Inconsistency",
+      "description": "Contract spans multiple domains (dao + defi) but may have inconsistent access control patterns across different functional areas.",
+      "severity": "medium",
+      "category": "access_control",
+      "confidence": "medium",
+      "status": "open",
+      "affected_contracts": [
+        "DeFiDAOExample"
+      ],
+      "affected_functions": [],
+      "code_snippet": "\n    modifier onlyGovernance() {\n        require(msg.sender == governance, \"Only governance\");\n        _;\n    }",
+      "line_numbers": [
+        21
+      ],
+      "impact": "Privilege escalation attacks could affect multiple protocol domains simultaneously",
+      "likelihood": "",
+      "recommendation": "Ensure consistent access control patterns across all domains and create clear role separation",
+      "fix_suggestion": "",
+      "references": [],
+      "metadata": {
+        "cwe_id": null,
+        "swc_id": null,
+        "owasp_category": null,
+        "detection_method": "static_analysis",
+        "detector_name": null,
+        "detector_version": null,
+        "detected_at": "2025-07-21T00:38:49.313095",
+        "last_updated": "2025-07-21T00:38:49.313095",
+        "reviewed_by": null,
+        "review_notes": null,
+        "fix_effort": null,
+        "fix_complexity": null
+      },
+      "risk_score": 0.36,
+      "location": {
+        "file_path": null,
+        "contract_name": "DeFiDAOExample",
+        "function_name": null,
+        "line_number": 21,
+        "column_number": null,
+        "start_line": null,
+        "end_line": null,
+        "code_snippet": "\n    modifier onlyGovernance() {\n        require(msg.sender == governance, \"Only governance\");\n        _;\n    }"
+      }
+    }
+  ],
+  "trace": [
+    "Loading contract source...",
+    "Parsing contract AST and metadata...",
+    "Classifying contract domain(s)...",
+    "Multi-domain analysis: dao + defi",
+    "Classifying protocol (if applicable)...",
+    "Running comprehensive security analysis...",
+    "Analyzing access control patterns...",
+    "Checking reentrancy vulnerabilities...",
+    "Checking for integer overflow/underflow vulnerabilities...",
+    "Analyzing randomness sources...",
+    "Checking economic model sustainability...",
+    "Checking for unchecked return values...",
+    "Checking DeFi-specific vulnerabilities...",
+    "Checking DAO-specific vulnerabilities...",
+    "Analyzing emergency mechanisms...",
+    "Checking timestamp dependencies...",
+    "Analyzing event emissions...",
+    "Generating fuzzing test templates...",
+    "Analyzing cross-domain vulnerabilities for: dao + defi...",
+    "Running domain-specific security agents...",
+    "Applicable agents: amm_agent, business_logic_agent, code_quality_agent, flash_loan_agent, governance_agent, lending_agent, multisig_agent, oracle_agent, staking_agent, treasury_agent, universal_agent, visibility_agent, voting_agent",
+    "Agent analysis error: 'analysis_summary'"
+  ]
+}
